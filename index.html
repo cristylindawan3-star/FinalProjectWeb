@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coffee App</title>
+
+
+<style>
+:root {
+  --bg: #1a0808;
+  --bg2: #220c0c;
+  --card: #2b1010;
+  --card2: #320f0f;
+  --border: rgba(180,60,60,0.18);
+  --accent: #c0392b;
+  --accent2: #e05a4a;
+  --pink: #d64f4f;
+  --cream: #f5e6e6;
+  --muted: rgba(245,230,230,0.5);
+  --muted2: rgba(245,230,230,0.3);
+  --gold: #c9a84c;
+  --green: #4caf6a;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--cream);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;font-size:clamp(0.875rem,2vw,1rem);}
+
+.phone-frame{width:clamp(280px,90vw,360px);min-height:640px;background:var(--bg2);border-radius:36px;border:2px solid rgba(180,60,60,0.25);overflow:hidden;position:relative;box-shadow:0 24px 60px rgba(0,0,0,0.7);display:flex;flex-direction:column;}
+.phone-notch{height:26px;background:#110505;display:flex;align-items:center;justify-content:space-between;padding:0 18px;flex-shrink:0;}
+.notch-time{font-size:0.62rem;font-weight:600;color:var(--cream);}
+.notch-icons{font-size:0.55rem;color:var(--cream);}
+.phone-content{flex:1;overflow-y:auto;overflow-x:hidden;}
+.phone-content::-webkit-scrollbar{width:0;}
+
+.app-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;background:var(--bg2);}
+.app-header-title{font-family:'Merriweather',Georgia,'Times New Roman',serif;font-size:1rem;font-weight:700;color:var(--cream);}
+.hdr-icon{width:30px;height:30px;background:var(--card);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);cursor:pointer;font-size:0.8rem;color:var(--muted);}
+
+.search-bar{margin:0 16px 12px;background:var(--card);border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;padding:8px 12px;gap:7px;}
+.search-bar input{background:transparent;border:none;outline:none;color:var(--cream);font-size:0.75rem;flex:1;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}
+.search-bar input::placeholder{color:var(--muted2);}
+
+.cat-scroll{display:flex;gap:7px;overflow-x:auto;padding:0 16px 10px;scrollbar-width:none;}
+.cat-scroll::-webkit-scrollbar{display:none;}
+.cat-pill{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:20px;font-size:0.68rem;font-weight:500;white-space:nowrap;cursor:pointer;transition:all 0.15s;}
+.cat-pill.active{background:var(--accent);color:white;border-color:var(--accent);}
+
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(6px,2vw,12px);padding:0 clamp(10px,2vw,16px) clamp(12px,2vw,16px);}
+.mc{background:var(--card);border-radius:13px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:transform 0.15s;}
+.mc:hover{transform:scale(1.02);}
+.mc img{width:100%;aspect-ratio:4/3;object-fit:cover;}
+.mc-body{padding:clamp(5px,1vw,9px) clamp(6px,1vw,9px) clamp(6px,1vw,9px);}
+.mc-rate{font-size:clamp(0.52rem,1vw,0.58rem);color:var(--gold);margin-bottom:2px;}
+.mc-name{font-size:clamp(0.58rem,1.5vw,0.68rem);font-weight:600;color:var(--cream);line-height:1.3;margin-bottom:5px;}
+.mc-footer{display:flex;align-items:center;justify-content:space-between;}
+.mc-price{font-size:clamp(0.68rem,1.5vw,0.75rem);font-weight:700;color:var(--accent2);}
+.add-btn{width:20px;height:20px;background:var(--accent);border-radius:50%;border:none;color:white;font-size:0.75rem;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+
+.btn-app{background:var(--accent);color:white;border:none;border-radius:22px;padding:11px 24px;font-size:0.78rem;font-weight:600;cursor:pointer;text-align:center;transition:all 0.15s;display:block;width:100%;}
+.btn-app:hover{background:var(--accent2);}
+.btn-out{background:transparent;color:var(--cream);border:1.5px solid rgba(245,230,230,0.22);border-radius:22px;padding:10px 24px;font-size:0.78rem;font-weight:500;cursor:pointer;text-align:center;display:block;width:100%;}
+
+
+.det-img{width:100%;aspect-ratio:16/10;object-fit:cover;}
+.det-back{position:absolute;top:40px;left:12px;width:28px;height:28px;background:rgba(26,8,8,0.7);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;color:var(--cream);cursor:pointer;backdrop-filter:blur(6px);border:1px solid var(--border);z-index:5;}
+.det-fav{position:absolute;top:40px;right:12px;width:28px;height:28px;background:rgba(26,8,8,0.7);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;color:var(--pink);cursor:pointer;backdrop-filter:blur(6px);border:1px solid var(--border);z-index:5;}
+.det-body{padding:16px 16px 20px;}
+.det-tag{font-size:0.6rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.12em;font-weight:600;margin-bottom:3px;}
+.det-name{font-family:'Merriweather',Georgia,'Times New Roman',serif;font-size:1.05rem;font-weight:700;color:var(--cream);margin-bottom:3px;}
+.det-rating{font-size:0.68rem;color:var(--gold);}
+.det-desc{font-size:0.72rem;color:var(--muted);line-height:1.6;margin:10px 0 14px;}
+.det-price{font-family:'Merriweather',Georgia,'Times New Roman',serif;font-size:1.3rem;font-weight:700;color:var(--accent2);}
+.chip-row{display:flex;gap:7px;margin:8px 0;}
+.chip{border:1.5px solid var(--border);background:transparent;color:var(--muted);padding:5px 14px;border-radius:18px;font-size:0.68rem;cursor:pointer;transition:all 0.15s;}
+.chip.active{border-color:var(--accent);color:var(--accent2);background:rgba(192,57,43,0.1);}
+.qty-row{display:flex;align-items:center;gap:12px;margin:12px 0;}
+.qty-btn{width:26px;height:26px;background:var(--card2);border:1px solid var(--border);border-radius:50%;color:var(--cream);font-size:0.95rem;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.qty-val{font-size:0.85rem;font-weight:600;color:var(--cream);}
+.sec-lbl{font-size:0.6rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+
+
+.ord-row{display:flex;align-items:center;gap:9px;background:var(--card);border-radius:12px;padding:9px;margin-bottom:7px;border:1px solid var(--border);}
+.ord-img{width:42px;height:42px;border-radius:8px;object-fit:cover;flex-shrink:0;}
+.ord-name{font-size:0.72rem;font-weight:600;color:var(--cream);}
+.ord-sub{font-size:0.6rem;color:var(--muted);}
+.ord-price{font-size:0.75rem;font-weight:700;color:var(--accent2);margin-left:auto;flex-shrink:0;}
+.tag-sm{background:rgba(192,57,43,0.12);border:1px solid rgba(192,57,43,0.22);color:var(--accent2);font-size:0.58rem;padding:3px 8px;border-radius:18px;font-weight:500;}
+.tot-card{background:var(--card);border-radius:13px;border:1px solid var(--border);padding:12px;margin-top:12px;}
+.tot-row{display:flex;justify-content:space-between;font-size:0.72rem;margin-bottom:6px;color:var(--muted);}
+.tot-row.b{color:var(--cream);font-weight:700;font-size:0.82rem;}
+.tot-div{height:1px;background:var(--border);margin:8px 0;}
+
+
+.trk-map{width:100%;height:190px;background:linear-gradient(135deg,#0d2010 0%,#152b18 100%);position:relative;overflow:hidden;}
+.mp-road{position:absolute;border:2px dashed rgba(100,200,120,0.35);border-radius:50%;width:130px;height:95px;top:38%;left:28%;transform:translate(-50%,-50%) rotate(-20deg);}
+.mp-road2{position:absolute;width:55%;height:2px;background:rgba(100,200,120,0.3);top:52%;left:22%;}
+.mp-dot{position:absolute;width:13px;height:13px;background:var(--accent);border-radius:50%;border:2px solid white;box-shadow:0 0 0 4px rgba(192,57,43,0.3);top:43%;left:55%;}
+.mp-dest{position:absolute;width:9px;height:9px;background:var(--green);border-radius:50%;border:2px solid white;top:36%;left:76%;}
+.mp-eta{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);background:rgba(26,8,8,0.88);border:1px solid var(--border);border-radius:9px;padding:5px 16px;text-align:center;white-space:nowrap;}
+.trk-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;flex-shrink:0;}
+.ts-d{background:rgba(192,57,43,0.2);color:var(--accent2);}
+.ts-a{background:var(--accent);color:white;}
+.ts-p{background:var(--card2);color:var(--muted2);border:1px solid var(--border);}
+.trk-vl{width:2px;height:16px;background:var(--border);margin-left:14px;}
+.trk-vl.d{background:var(--accent);}
+
+
+.pf-stat{flex:1;background:var(--card);border-radius:11px;border:1px solid var(--border);padding:9px;text-align:center;}
+.pf-num{font-size:0.95rem;font-weight:700;color:var(--accent2);}
+.pf-lbl{font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;}
+.ml-item{display:flex;align-items:center;gap:11px;padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;}
+.ml-icon{width:32px;height:32px;background:var(--card);border-radius:9px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.82rem;color:var(--accent2);}
+.ml-title{font-size:0.76rem;font-weight:500;color:var(--cream);}
+.ml-sub{font-size:0.6rem;color:var(--muted);}
+
+
+.fav-row{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:13px;border:1px solid var(--border);padding:9px;margin:0 16px 9px;}
+.fav-row img{width:56px;height:56px;border-radius:9px;object-fit:cover;flex-shrink:0;}
+.fav-name{font-size:0.74rem;font-weight:600;color:var(--cream);}
+.fav-sub{font-size:0.6rem;color:var(--muted);}
+.fav-price{font-size:0.78rem;font-weight:700;color:var(--accent2);}
+
+
+.loy-card{margin:0 16px 12px;background:linear-gradient(135deg,var(--accent) 0%,#7a1515 100%);border-radius:15px;padding:16px;position:relative;overflow:hidden;}
+.loy-card::before{content:'';position:absolute;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);right:-26px;top:-26px;}
+.loy-pts{font-family:'Merriweather',Georgia,'Times New Roman',serif;font-size:1.9rem;font-weight:700;color:white;}
+.prog-track{height:5px;background:rgba(255,255,255,0.18);border-radius:3px;margin-top:10px;overflow:hidden;}
+.prog-fill{height:100%;background:white;border-radius:3px;width:65%;}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border);}
+.tog{width:34px;height:19px;background:var(--accent);border-radius:10px;position:relative;cursor:pointer;transition:background 0.2s;}
+.tog::after{content:'';position:absolute;width:15px;height:15px;background:white;border-radius:50%;top:2px;right:2px;transition:right 0.2s;}
+.tog.off{background:var(--card2);}
+.tog.off::after{right:17px;}
+
+
+.si-wrap{padding:28px 22px;display:flex;flex-direction:column;min-height:590px;}
+.si-logo{font-family:'Merriweather',Georgia,'Times New Roman',serif;font-size:1.5rem;font-weight:700;color:var(--cream);}
+.si-logo span{color:var(--accent2);}
+.f-lbl{font-size:0.65rem;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:5px;display:block;}
+.f-inp{width:100%;background:var(--card);border:1px solid var(--border);border-radius:11px;padding:10px 12px;color:var(--cream);font-size:0.78rem;outline:none;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin-bottom:12px;}
+.f-inp:focus{border-color:var(--accent);}
+.f-inp::placeholder{color:var(--muted2);}
+.divt{display:flex;align-items:center;gap:9px;margin:15px 0;font-size:0.65rem;color:var(--muted2);}
+.divt::before,.divt::after{content:'';flex:1;height:1px;background:var(--border);}
+.soc-btn{flex:1;background:var(--card);border:1px solid var(--border);color:var(--cream);border-radius:11px;padding:9px;font-size:0.72rem;cursor:pointer;}
+
+
+.bnav{display:flex;justify-content:space-around;padding:9px 0 7px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0;}
+.bn{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-size:1rem;color:var(--muted);padding:0 9px;}
+.bn.a{color:var(--accent2);}
+.bn-lbl{font-size:0.52rem;font-weight:500;}
+
+
+.splash{background:linear-gradient(180deg,#2a0808 0%,#1a0505 100%);min-height:clamp(500px,85vh,640px);display:flex;flex-direction:column;padding:clamp(12px,3vw,20px) clamp(12px,3vw,20px) clamp(16px,4vw,24px);}
+.splash img.hero{width:100%;aspect-ratio:16/10;border-radius:16px;object-fit:cover;margin-bottom:clamp(12px,3vw,18px);}
+.splash-title{font-family:'Merriweather',Georgia,'Times New Roman',serif;font-size:clamp(0.95rem,3vw,1.25rem);font-weight:700;color:var(--cream);line-height:1.35;margin-bottom:clamp(6px,2vw,9px);}
+.splash-sub{font-size:clamp(0.65rem,1.8vw,0.73rem);color:var(--muted);line-height:1.6;margin-bottom:clamp(16px,3vw,20px);}
+.mini-row{display:flex;gap:7px;margin-top:10px;}
+.mini-c{flex:1;background:var(--card);border-radius:11px;overflow:hidden;border:1px solid var(--border);}
+.mini-c img{width:100%;aspect-ratio:2/1;object-fit:cover;}
+.mini-lbl{font-size:0.58rem;color:var(--cream);padding:4px 6px;font-weight:500;}
+
+
+.wrap{max-width:1200px;margin:0 auto;padding:clamp(20px,5vw,40px) clamp(12px,3vw,32px) clamp(40px,8vw,60px);}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:clamp(16px,3vw,32px);justify-items:center;}
+.scr-lbl{text-align:center;font-size:clamp(0.6rem,1.5vw,0.8rem);color:var(--muted);letter-spacing:0.07em;margin-top:clamp(6px,2vw,12px);font-weight:500;}
+.pg-head{text-align:center;padding:clamp(28px,5vw,48px) clamp(16px,3vw,32px) clamp(20px,4vw,32px);background:linear-gradient(180deg,#2a0808 0%,var(--bg) 100%);border-bottom:1px solid var(--border);}
+.pg-logo{font-family:'Merriweather',Georgia,'Times New Roman',serif;font-size:clamp(1.5rem,4vw,2.5rem);font-weight:700;color:var(--cream);}
+.pg-logo span{color:var(--accent2);}
+
+
+@media(max-width:480px){
+  .wrap{padding:20px 12px 40px;}
+  .grid{grid-template-columns:1fr;gap:16px;}
+  .phone-frame{width:100%;max-width:320px;}
+  .splash{padding:12px 12px 16px;min-height:500px;}
+  .splash-title{font-size:1rem;}
+  .splash-sub{font-size:0.68rem;}
+  .menu-grid{grid-template-columns:1fr 1fr;gap:6px;padding:0 10px 12px;}
+  .mc-name{font-size:0.62rem;}
+  .pg-head{padding:28px 16px 20px;}
+  .pg-logo{font-size:1.5rem;}
+  .btn-app,.btn-out{padding:9px 20px;font-size:0.72rem;}
+}
+
+
+@media(min-width:481px) and (max-width:768px){
+  .wrap{padding:28px 16px 48px;}
+  .grid{grid-template-columns:repeat(2,1fr);gap:20px;}
+  .phone-frame{width:100%;max-width:360px;}
+  .splash{padding:14px 16px 20px;min-height:550px;}
+  .splash-title{font-size:1.1rem;}
+  .menu-grid{grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 14px;}
+  .pg-head{padding:36px 20px 24px;}
+  .pg-logo{font-size:1.75rem;}
+}
+
+
+@media(min-width:769px) and (max-width:1024px){
+  .wrap{padding:32px 24px 56px;}
+  .grid{grid-template-columns:repeat(3,1fr);gap:24px;}
+  .phone-frame{width:340px;}
+  .pg-head{padding:40px 24px 28px;}
+  .pg-logo{font-size:2.2rem;}
+}
+
+
+@media(min-width:1025px){
+  .wrap{padding:40px 32px 60px;}
+  .grid{grid-template-columns:repeat(4,1fr);gap:32px;}
+  .phone-frame{width:360px;}
+  .pg-head{padding:48px 32px 32px;}
+  .pg-logo{font-size:2.5rem;}
+}
+</style>
+</head>
+<body>
+
+<div class="pg-head">
+  <div class="pg-logo">Brew<span>Craft</span></div>
+  <p style="font-size:0.84rem;color:var(--muted);margin-top:5px">Coffee is good, your taste buds will love it.</p>
+</div>
+
+<div class="wrap"><div class="grid">
+
+
+<div>
+  <div class="phone-frame">
+    <div class="phone-notch"><span class="notch-time">9:41</span><span class="notch-icons">●●● ▲ ▮▮</span></div>
+    <div class="phone-content">
+      <div class="splash">
+        <div class="hero" style="background:linear-gradient(135deg,#3d1a1a,#6b2c2c);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Coffee cup latte art">☕</div>
+        <p class="splash-title">Coffee is good,<br>your taste buds<br>will love it.</p>
+        <p class="splash-sub">Premium artisan coffee sourced from the world's finest estates, roasted and delivered fresh to your door.</p>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <button class="btn-app" style="flex:1;padding:11px">Order Now</button>
+          <button class="btn-out" style="flex:1;padding:10px">Our Menu</button>
+        </div>
+        <div class="mini-row">
+          <div class="mini-c"><div class="" style="background:linear-gradient(135deg,#2d1a0a,#5a3010);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Cappuccino">☕</div><div class="mini-lbl">Cappuccino</div></div>
+          <div class="mini-c"><div class="" style="background:linear-gradient(135deg,#0d1a2d,#1a3050);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Cold Brew">🧋</div><div class="mini-lbl">Cold Brew</div></div>
+          <div class="mini-c"><div class="" style="background:linear-gradient(135deg,#1a0a00,#3d1800);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Espresso">☕</div><div class="mini-lbl">Espresso</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="scr-lbl">Screen 1 · Splash / Home</p>
+</div>
+
+
+<div>
+  <div class="phone-frame">
+    <div class="phone-notch"><span class="notch-time">9:41</span><span class="notch-icons">●●● ▲ ▮▮</span></div>
+    <div class="phone-content">
+      <div class="app-header">
+        <div><div style="font-size:0.6rem;color:var(--muted)">Good morning ☕</div><div class="app-header-title">Our Menu</div></div>
+        <div class="hdr-icon">🛒</div>
+      </div>
+      <div class="search-bar"><span style="color:var(--muted);font-size:0.8rem">🔍</span><input type="text" placeholder="Search drinks..."></div>
+      <div class="cat-scroll">
+        <div class="cat-pill active">All</div>
+        <div class="cat-pill">Espresso</div>
+        <div class="cat-pill">Latte</div>
+        <div class="cat-pill">Cold Brew</div>
+        <div class="cat-pill">Seasonal</div>
+      </div>
+      <div class="menu-grid">
+        <div class="mc">
+          <div class="" style="background:linear-gradient(135deg,#2d1a0a,#5a3010);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Cappuccino">☕</div>
+          <div class="mc-body"><div class="mc-rate">★★★★★</div><div class="mc-name">Cappuccino with Chocolate</div><div class="mc-footer"><span class="mc-price">₱195</span><button class="add-btn">+</button></div></div>
+        </div>
+        <div class="mc">
+          <div class="" style="background:linear-gradient(135deg,#2c1a0e,#5c3a1e);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Latte">🥛</div>
+          <div class="mc-body"><div class="mc-rate">★★★★☆</div><div class="mc-name">Malted Latte</div><div class="mc-footer"><span class="mc-price">₱210</span><button class="add-btn">+</button></div></div>
+        </div>
+        <div class="mc">
+          <div class="" style="background:linear-gradient(135deg,#0a1a2d,#102040);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Cold Brew">🧊</div>
+          <div class="mc-body"><div class="mc-rate">★★★★★</div><div class="mc-name">Cold Brew Float</div><div class="mc-footer"><span class="mc-price">₱220</span><button class="add-btn">+</button></div></div>
+        </div>
+        <div class="mc">
+          <div class="" style="background:linear-gradient(135deg,#1a0a00,#3d1800);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Espresso">☕</div>
+          <div class="mc-body"><div class="mc-rate">★★★★★</div><div class="mc-name">Classic Espresso</div><div class="mc-footer"><span class="mc-price">₱120</span><button class="add-btn">+</button></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="bnav">
+      <div class="bn a"><span>🏠</span><span class="bn-lbl">Home</span></div>
+      <div class="bn"><span>☕</span><span class="bn-lbl">Menu</span></div>
+      <div class="bn"><span>🛒</span><span class="bn-lbl">Order</span></div>
+      <div class="bn"><span>❤️</span><span class="bn-lbl">Saved</span></div>
+      <div class="bn"><span>👤</span><span class="bn-lbl">Profile</span></div>
+    </div>
+  </div>
+  <p class="scr-lbl">Screen 2 · Menu Catalogue</p>
+</div>
+
+
+<div>
+  <div class="phone-frame">
+    <div class="phone-notch"><span class="notch-time">9:41</span><span class="notch-icons">●●● ▲ ▮▮</span></div>
+    <div class="phone-content" style="position:relative">
+      <div style="position:relative"><div class="det-back">‹</div><div class="det-fav">♥</div>
+        <div class="det-img" style="background:linear-gradient(135deg,#2c1a0e,#5c3a1e);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Malted Latte">🥛</div>
+      </div>
+      <div class="det-body">
+        <div class="det-tag">Espresso · Signature</div>
+        <div class="det-name">Malted Latte</div>
+        <div class="det-rating">★★★★☆ <span style="color:var(--muted);font-size:0.6rem">(132 reviews)</span></div>
+        <p class="det-desc">Single-origin espresso with house-made malt syrup and steamed oat milk. Rich, smooth and deeply satisfying.</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span class="det-price">₱210</span>
+          <div style="text-align:right"><div style="font-size:0.58rem;color:var(--muted)">Prep time</div><div style="font-size:0.7rem;color:var(--cream);font-weight:600">4–6 min</div></div>
+        </div>
+        <div class="sec-lbl">Size</div>
+        <div class="chip-row"><button class="chip">S</button><button class="chip active">M</button><button class="chip">L</button><button class="chip">XL</button></div>
+        <div class="qty-row">
+          <div class="qty-btn">−</div><span class="qty-val">1</span><div class="qty-btn">+</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-left:auto">Total: <strong style="color:var(--accent2)">₱210</strong></div>
+        </div>
+        <button class="btn-app">Add to Order</button>
+      </div>
+    </div>
+  </div>
+  <p class="scr-lbl">Screen 3 · Detail View</p>
+</div>
+
+
+<div>
+  <div class="phone-frame">
+    <div class="phone-notch"><span class="notch-time">9:41</span><span class="notch-icons">●●● ▲ ▮▮</span></div>
+    <div class="phone-content">
+      <div class="app-header"><div class="app-header-title">My Order</div><div style="font-size:0.66rem;color:var(--accent2);font-weight:600;cursor:pointer">Edit</div></div>
+      <div style="padding:0 14px 14px">
+        <div class="sec-lbl" style="margin-top:8px">Items</div>
+        <div class="ord-row">
+          <div class="ord-img" style="background:linear-gradient(135deg,#2d1a0a,#5a3010);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Cappuccino">☕</div>
+          <div><div class="ord-name">Cappuccino w/ Choco</div><div class="ord-sub">Medium · Hot · x1</div><div style="display:flex;gap:5px;margin-top:4px"><span class="tag-sm">No sugar</span><span class="tag-sm">Oat milk</span></div></div>
+          <div class="ord-price">₱195</div>
+        </div>
+        <div class="ord-row">
+          <div class="ord-img" style="background:linear-gradient(135deg,#2c1a0e,#5c3a1e);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Latte">🥛</div>
+          <div><div class="ord-name">Malted Latte</div><div class="ord-sub">Large · Hot · x2</div></div>
+          <div class="ord-price">₱420</div>
+        </div>
+        <div class="ord-row">
+          <div class="ord-img" style="background:linear-gradient(135deg,#2d1a00,#6b4000);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Croissant">🥐</div>
+          <div><div class="ord-name">Butter Croissant</div><div class="ord-sub">Fresh · x1</div></div>
+          <div class="ord-price">₱95</div>
+        </div>
+        <div class="tot-card">
+          <div class="tot-row"><span>Subtotal</span><span style="color:var(--cream)">₱710</span></div>
+          <div class="tot-row"><span>Delivery</span><span style="color:var(--cream)">₱49</span></div>
+          <div class="tot-row"><span>Discount</span><span style="color:#4ade80">−₱50</span></div>
+          <div class="tot-div"></div>
+          <div class="tot-row b"><span>Total</span><span style="color:var(--accent2)">₱709</span></div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:9px;padding:8px 11px;display:flex;align-items:center;gap:7px;margin:11px 0 10px">
+          <input type="text" placeholder="Promo code" style="background:transparent;border:none;outline:none;color:var(--cream);font-size:0.7rem;flex:1;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+          <span style="font-size:0.68rem;color:var(--accent2);font-weight:600;cursor:pointer">Apply</span>
+        </div>
+        <button class="btn-app" style="padding:12px">Place Order</button>
+      </div>
+    </div>
+    <div class="bnav">
+      <div class="bn"><span>🏠</span><span class="bn-lbl">Home</span></div>
+      <div class="bn"><span>☕</span><span class="bn-lbl">Menu</span></div>
+      <div class="bn a"><span>🛒</span><span class="bn-lbl">Order</span></div>
+      <div class="bn"><span>❤️</span><span class="bn-lbl">Saved</span></div>
+      <div class="bn"><span>👤</span><span class="bn-lbl">Profile</span></div>
+    </div>
+  </div>
+  <p class="scr-lbl">Screen 4 · Order Summary</p>
+</div>
+
+
+<div>
+  <div class="phone-frame">
+    <div class="phone-notch"><span class="notch-time">9:41</span><span class="notch-icons">●●● ▲ ▮▮</span></div>
+    <div class="phone-content">
+      <div class="app-header">
+        <div class="det-back" style="position:relative;top:auto;left:auto;display:inline-flex">‹</div>
+        <div class="app-header-title" style="margin-left:7px">Tracking</div>
+        <div style="margin-left:auto;font-size:0.66rem;color:var(--accent2);font-weight:600">#4812</div>
+      </div>
+      <div class="trk-map">
+        <div class="mp-road"></div><div class="mp-road2"></div>
+        <div class="mp-dot"></div><div class="mp-dest"></div>
+        <div style="position:absolute;top:9px;left:9px;background:rgba(26,8,8,0.75);border-radius:7px;padding:3px 9px;font-size:0.58rem;color:var(--cream);border:1px solid var(--border)">📍 Session Rd, Baguio</div>
+        <div class="mp-eta"><div style="font-size:0.58rem;color:var(--muted)">Estimated arrival</div><div style="font-size:0.78rem;font-weight:700;color:var(--accent2)">~8 minutes</div></div>
+      </div>
+      <div style="margin:10px 14px;background:var(--card);border-radius:12px;border:1px solid var(--border);padding:10px;display:flex;align-items:center;gap:9px">
+        <div class="" style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);background:linear-gradient(135deg,#0d1a2d,#1a3050);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Rider">🚴</div>
+        <div><div style="font-size:0.76rem;font-weight:600;color:var(--cream)">Marco D.</div><div style="font-size:0.58rem;color:var(--muted)">⭐ 4.9 · Your rider</div></div>
+        <div style="margin-left:auto;display:flex;gap:7px">
+          <div style="width:28px;height:28px;background:rgba(192,57,43,0.15);border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.75rem;cursor:pointer">📞</div>
+          <div style="width:28px;height:28px;background:rgba(192,57,43,0.15);border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.75rem;cursor:pointer">💬</div>
+        </div>
+      </div>
+      <div style="padding:10px 14px 16px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:3px"><div class="trk-icon ts-d">✓</div><div><div style="font-size:0.74rem;font-weight:600;color:var(--cream)">Order Confirmed</div><div style="font-size:0.6rem;color:var(--muted)">2:14 PM</div></div></div>
+        <div class="trk-vl d"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:3px"><div class="trk-icon ts-d">☕</div><div><div style="font-size:0.74rem;font-weight:600;color:var(--cream)">Being Prepared</div><div style="font-size:0.6rem;color:var(--muted)">2:18 PM · Brewing</div></div></div>
+        <div class="trk-vl d"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:3px"><div class="trk-icon ts-a">🚴</div><div><div style="font-size:0.74rem;font-weight:600;color:var(--cream)">On the Way</div><div style="font-size:0.6rem;color:var(--accent2)">2:31 PM · ~8 min left</div></div></div>
+        <div class="trk-vl"></div>
+        <div style="display:flex;align-items:center;gap:10px"><div class="trk-icon ts-p">🏠</div><div><div style="font-size:0.74rem;font-weight:600;color:var(--muted)">Delivered</div><div style="font-size:0.6rem;color:var(--muted)">Est. 2:39 PM</div></div></div>
+      </div>
+    </div>
+  </div>
+  <p class="scr-lbl">Screen 5 · Live Tracking</p>
+</div>
+
+
+<div>
+  <div class="phone-frame">
+    <div class="phone-notch"><span class="notch-time">9:41</span><span class="notch-icons">●●● ▲ ▮▮</span></div>
+    <div class="phone-content" style="position:relative">
+      <div style="position:relative"><div class="det-back">‹</div><div class="det-fav">♥</div>
+        <div class="det-img" style="background:linear-gradient(135deg,#3d1a1a,#6b2c2c);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Latte art">☕</div>
+      </div>
+      <div class="det-body">
+        <div class="det-tag">Latte · Signature</div>
+        <div class="det-name">Latte Art Special</div>
+        <div class="det-rating">★★★★★ <span style="color:var(--muted);font-size:0.6rem">(248 reviews)</span></div>
+        <p class="det-desc">Barista's signature creation — a beautifully poured latte with intricate rosette art on a perfect microfoam canvas. Double-shot, full cream, flawless balance.</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span class="det-price">₱220</span>
+          <div style="text-align:right"><div style="font-size:0.58rem;color:var(--muted)">Calories</div><div style="font-size:0.7rem;color:var(--cream);font-weight:600">180 kcal</div></div>
+        </div>
+        <div class="sec-lbl">Temperature</div>
+        <div class="chip-row"><button class="chip active">Hot</button><button class="chip">Iced</button></div>
+        <div class="qty-row"><div class="qty-btn">−</div><span class="qty-val">1</span><div class="qty-btn">+</div></div>
+        <button class="btn-app">Add to Order</button>
+      </div>
+    </div>
+  </div>
+  <p class="scr-lbl">Screen 6 · Detail (Latte)</p>
+</div>
+
+
+<div>
+  <div class="phone-frame">
+    <div class="phone-notch"><span class="notch-time">9:41</span><span class="notch-icons">●●● ▲ ▮▮</span></div>
+    <div class="phone-content" style="position:relative">
+      <div style="position:relative"><div class="det-back">‹</div><div class="det-fav">♥</div>
+        <div class="det-img" style="background:linear-gradient(135deg,#1a0d0d,#4a1a1a);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Cappuccino">☕</div>
+      </div>
+      <div class="det-body">
+        <div class="det-tag">Signature · Bestseller</div>
+        <div class="det-name">Cappuccino with Chocolate</div>
+        <div class="det-rating">★★★★★ <span style="color:var(--muted);font-size:0.6rem">(315 reviews)</span></div>
+        <p class="det-desc">Velvety espresso layered with silky chocolate foam and fine cocoa dust. Bittersweet, bold, and beautifully balanced in every sip.</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span class="det-price">₱195</span>
+          <div style="text-align:right"><div style="font-size:0.58rem;color:var(--muted)">Caffeine</div><div style="font-size:0.7rem;color:var(--cream);font-weight:600">128 mg</div></div>
+        </div>
+        <div class="sec-lbl">Size</div>
+        <div class="chip-row"><button class="chip">S</button><button class="chip active">M</button><button class="chip">L</button><button class="chip">XL</button></div>
+        <div class="qty-row">
+          <div class="qty-btn">−</div><span class="qty-val">1</span><div class="qty-btn">+</div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-left:auto">Total: <strong style="color:var(--accent2)">₱195</strong></div>
+        </div>
+        <button class="btn-app">Add to Order</button>
+      </div>
+    </div>
+  </div>
+  <p class="scr-lbl">Screen 7 · Detail (Cappuccino)</p>
+</div>
+
+
+<div>
+  <div class="phone-frame">
+    <div class="phone-notch"><span class="notch-time">9:41</span><span class="notch-icons">●●● ▲ ▮▮</span></div>
+    <div class="phone-content">
+      <div class="app-header"><div class="app-header-title">Profile</div><div class="hdr-icon">⚙️</div></div>
+      <div style="padding:10px 14px 10px;display:flex;align-items:center;gap:10px">
+        <div class="" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);background:linear-gradient(135deg,#1a0d1a,#3d1a3d);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="User">👤</div>
+        <div><div style="font-size:0.9rem;font-weight:700;color:var(--cream)">Ana Reyes</div><div style="font-size:0.65rem;color:var(--muted)">Gold Member · Baguio City</div><div style="font-size:0.58rem;color:var(--accent2);margin-top:2px">⭐ 1,240 reward points</div></div>
+      </div>
+      <div style="display:flex;gap:7px;padding:0 14px 12px">
+        <div class="pf-stat"><div class="pf-num">42</div><div class="pf-lbl">Orders</div></div>
+        <div class="pf-stat"><div class="pf-num">8</div><div class="pf-lbl">Saved</div></div>
+        <div class="pf-stat"><div class="pf-num">₱180</div><div class="pf-lbl">Saved</div></div>
+      </div>
+      <div class="ml-item"><div class="ml-icon">📋</div><div><div class="ml-title">Order History</div><div class="ml-sub">View past orders</div></div><div style="margin-left:auto;color:var(--muted2);font-size:0.7rem">›</div></div>
+      <div class="ml-item"><div class="ml-icon">❤️</div><div><div class="ml-title">My Favourites</div><div class="ml-sub">8 saved items</div></div><div style="margin-left:auto;color:var(--muted2);font-size:0.7rem">›</div></div>
+      <div class="ml-item"><div class="ml-icon">📍</div><div><div class="ml-title">Delivery Addresses</div><div class="ml-sub">2 saved addresses</div></div><div style="margin-left:auto;color:var(--muted2);font-size:0.7rem">›</div></div>
+      <div class="ml-item"><div class="ml-icon">💳</div><div><div class="ml-title">Payment Methods</div><div class="ml-sub">GCash · Visa</div></div><div style="margin-left:auto;color:var(--muted2);font-size:0.7rem">›</div></div>
+      <div class="ml-item" style="border-bottom:none"><div class="ml-icon">🎁</div><div><div class="ml-title">Loyalty Rewards</div><div class="ml-sub">1,240 pts</div></div><div style="margin-left:auto;color:var(--muted2);font-size:0.7rem">›</div></div>
+    </div>
+    <div class="bnav">
+      <div class="bn"><span>🏠</span><span class="bn-lbl">Home</span></div>
+      <div class="bn"><span>☕</span><span class="bn-lbl">Menu</span></div>
+      <div class="bn"><span>🛒</span><span class="bn-lbl">Order</span></div>
+      <div class="bn"><span>❤️</span><span class="bn-lbl">Saved</span></div>
+      <div class="bn a"><span>👤</span><span class="bn-lbl">Profile</span></div>
+    </div>
+  </div>
+  <p class="scr-lbl">Screen 8 · Profile / About</p>
+</div>
+
+
+<div>
+  <div class="phone-frame">
+    <div class="phone-notch"><span class="notch-time">9:41</span><span class="notch-icons">●●● ▲ ▮▮</span></div>
+    <div class="phone-content">
+      <div class="app-header"><div class="app-header-title">My Favourites</div><div class="hdr-icon">🔍</div></div>
+      <div style="padding-top:8px">
+        <div class="fav-row"><div class="" style="background:linear-gradient(135deg,#2d1a0a,#5a3010);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Cappuccino">☕</div><div style="flex:1"><div class="fav-name">Cappuccino with Chocolate</div><div class="fav-sub">Medium · Hot · 14×</div><div class="fav-price">₱195</div></div><div style="color:var(--pink);font-size:0.95rem">♥</div></div>
+        <div class="fav-row"><div class="" style="background:linear-gradient(135deg,#0d1a2d,#1a3050);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Cold Brew">🧋</div><div style="flex:1"><div class="fav-name">Vanilla Cold Brew</div><div class="fav-sub">Regular · Cold · 9×</div><div class="fav-price">₱215</div></div><div style="color:var(--pink);font-size:0.95rem">♥</div></div>
+        <div class="fav-row"><div class="" style="background:linear-gradient(135deg,#2d2000,#5a4000);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Hazelnut">🌰</div><div style="flex:1"><div class="fav-name">Hazelnut Praline</div><div class="fav-sub">Large · Hot · 6×</div><div class="fav-price">₱230</div></div><div style="color:var(--pink);font-size:0.95rem">♥</div></div>
+        <div class="fav-row"><div class="" style="background:linear-gradient(135deg,#2d1a00,#6b4000);display:flex;align-items:center;justify-content:center;font-size:2rem;" title="Croissant">🥐</div><div style="flex:1"><div class="fav-name">Butter Croissant</div><div class="fav-sub">Fresh daily · 11×</div><div class="fav-price">₱95</div></div><div style="color:var(--pink);font-size:0.95rem">♥</div></div>
+      </div>
+    </div>
+    <div class="bnav">
+      <div class="bn"><span>🏠</span><span class="bn-lbl">Home</span></div>
+      <div class="bn"><span>☕</span><span class="bn-lbl">Menu</span></div>
+      <div class="bn"><span>🛒</span><span class="bn-lbl">Order</span></div>
+      <div class="bn a"><span>❤️</span><span class="bn-lbl">Saved</span></div>
+      <div class="bn"><span>👤</span><span class="bn-lbl">Profile</span></div>
+    </div>
+  </div>
+  <p class="scr-lbl">Screen 9 · My Favourites</p>
+</div>
+
+
+<div>
+  <div class="phone-frame">
+    <div class="phone-notch"><span class="notch-time">9:41</span><span class="notch-icons">●●● ▲ ▮▮</span></div>
+    <div class="phone-content">
+      <div class="app-header"><div class="det-back" style="position:relative;top:auto;left:auto;display:inline-flex">‹</div><div class="app-header-title" style="margin-left:7px">Loyalty & Settings</div></div>
+      <div class="loy-card">
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.65)">Your Points</div>
+        <div class="loy-pts">1,240</div>
+        <div style="font-size:0.6rem;color:rgba(255,255,255,0.6);margin-top:2px">Gold Member · 260 pts to Platinum</div>
+        <div class="prog-track"><div class="prog-fill"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px"><span style="font-size:0.56rem;color:rgba(255,255,255,0.5)">Gold 1,000</span><span style="font-size:0.56rem;color:rgba(255,255,255,0.5)">Platinum 1,500</span></div>
+      </div>
+      <div style="padding:0 14px 9px"><div style="font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;font-weight:600">Notification Preferences</div></div>
+      <div class="set-row"><div><div style="font-size:0.76rem;color:var(--cream)">Order Updates</div><div style="font-size:0.6rem;color:var(--muted)">Tracking & delivery alerts</div></div><div class="tog"></div></div>
+      <div class="set-row"><div><div style="font-size:0.76rem;color:var(--cream)">Promotions</div><div style="font-size:0.6rem;color:var(--muted)">Deals & new items</div></div><div class="tog off"></div></div>
+      <div class="set-row" style="border-bottom:none"><div><div style="font-size:0.76rem;color:var(--cream)">Loyalty Rewards</div><div style="font-size:0.6rem;color:var(--muted)">Points & redemptions</div></div><div class="tog"></div></div>
+      <div style="padding:12px 14px"><button class="btn-app" style="background:linear-gradient(90deg,var(--accent),#8b1a1a);padding:11px">Redeem Points</button></div>
+    </div>
+  </div>
+  <p class="scr-lbl">Screen 10 · Loyalty & Settings</p>
+</div>
+
+
+<div>
+  <div class="phone-frame">
+    <div class="phone-notch"><span class="notch-time">9:41</span><span class="notch-icons">●●● ▲ ▮▮</span></div>
+    <div class="phone-content">
+      <div class="si-wrap">
+        <div style="margin-bottom:22px"><div class="si-logo">Brew<span>Craft</span></div><div style="font-size:0.7rem;color:var(--muted);margin-top:4px">Welcome back — your coffee awaits.</div></div>
+        <label class="f-lbl">Email</label>
+        <input type="email" class="f-inp" placeholder="you@email.com">
+        <label class="f-lbl">Password</label>
+        <input type="password" class="f-inp" placeholder="••••••••">
+        <div style="text-align:right;margin-top:-6px;margin-bottom:14px"><span style="font-size:0.68rem;color:var(--accent2);cursor:pointer">Forgot password?</span></div>
+        <button class="btn-app" style="padding:12px;margin-bottom:10px">Sign In</button>
+        <button class="btn-out" style="padding:11px">Create Account</button>
+        <div class="divt">or continue with</div>
+        <div style="display:flex;gap:9px">
+          <button class="soc-btn">🇬 Google</button>
+          <button class="soc-btn">🍎 Apple</button>
+        </div>
+        <p style="font-size:0.6rem;color:var(--muted);text-align:center;margin-top:16px">By signing in, you agree to our <span style="color:var(--accent2)">Terms</span> & <span style="color:var(--accent2)">Privacy Policy</span></p>
+      </div>
+    </div>
+  </div>
+  <p class="scr-lbl">Screen 11 · Sign In</p>
+</div>
+
+</div></div>
+
+
+<script>
+document.querySelectorAll('.chip-row').forEach(row=>{
+  row.querySelectorAll('.chip').forEach(c=>{
+    c.addEventListener('click',function(){
+      row.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+});
+document.querySelectorAll('.cat-scroll').forEach(row=>{
+  row.querySelectorAll('.cat-pill').forEach(p=>{
+    p.addEventListener('click',function(){
+      row.querySelectorAll('.cat-pill').forEach(x=>x.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+});
+document.querySelectorAll('.qty-row').forEach(row=>{
+  let q=1;const v=row.querySelector('.qty-val');const bs=row.querySelectorAll('.qty-btn');
+  if(!v||bs.length<2)return;
+  bs[0].addEventListener('click',()=>{if(q>1)v.textContent=--q;});
+  bs[1].addEventListener('click',()=>{v.textContent=++q;});
+});
+document.querySelectorAll('.tog').forEach(t=>{t.addEventListener('click',function(){this.classList.toggle('off');});});
+document.querySelectorAll('.det-fav').forEach(b=>{
+  b.addEventListener('click',function(){
+    this.style.color=this.style.color==='rgb(224, 90, 74)'?'var(--pink)':'rgb(224, 90, 74)';
+  });
+});
+</script>
+</body>
+</html>
